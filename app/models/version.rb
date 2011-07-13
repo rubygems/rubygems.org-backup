@@ -125,7 +125,7 @@ class Version < ActiveRecord::Base
   end
 
   def sized?
-    size.present?
+    size?
   end
 
   def size_in_kilobytes
