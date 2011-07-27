@@ -91,10 +91,12 @@ class PusherTest < ActiveSupport::TestCase
         stub(spec).version { "1.3.3.7" }
         stub(spec).original_platform { "ruby" }
         stub(@cutter).spec { spec }
+        stub(@cutter).size { 1024 }
         @cutter.find
 
         assert_not_nil @cutter.rubygem
         assert_not_nil @cutter.version
+        assert_equal 1024, @cutter.version.size
       end
 
       should "bring up existing gem with matching spec" do
