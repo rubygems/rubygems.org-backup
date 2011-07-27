@@ -64,6 +64,7 @@ FactoryGirl.define do
     number
     platform "ruby"
     rubygem
+    size 1024
   end
 
   sequence :url do |n|
