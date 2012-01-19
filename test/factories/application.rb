@@ -60,6 +60,7 @@ FactoryGirl.define do
   end
 
   factory :version do
+    url nil
     authors ["Joe User"]
     built_at 1.day.ago
     description "Some awesome gem"

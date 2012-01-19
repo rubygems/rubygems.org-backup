@@ -98,6 +98,10 @@ class Version < ActiveRecord::Base
     $redis.hget(info_key(full_name), :name)
   end
 
+  def self.url_for(full_name)
+    $redis.hget(info_key(full_name), :url)
+  end
+
   def self.info_key(full_name)
     "v:#{full_name}"
   end
@@ -264,10 +268,18 @@ class Version < ActiveRecord::Base
 
     Version.update_all({:full_name => full_name}, {:id => id})
 
-    $redis.hmset(Version.info_key(full_name),
-                 :name, rubygem.name,
-                 :number, number,
-                 :platform, platform)
+    if u = self.url
+      $redis.hmset(Version.info_key(full_name),
+                   :name, rubygem.name,
+                   :number, number,
+                   :platform, platform,
+                   :url, u)
+    else
+      $redis.hmset(Version.info_key(full_name),
+                   :name, rubygem.name,
+                   :number, number,
+                   :platform, platform)
+    end
 
     push
   end

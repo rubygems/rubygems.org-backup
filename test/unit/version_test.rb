@@ -125,6 +125,17 @@ class VersionTest < ActiveSupport::TestCase
     end
   end
 
+  context "with a version that specifies a url" do
+    setup do
+      @url = "http://some.server/my_gem.gem"
+      @version = Factory(:version, :url => @url)
+    end
+
+    should "populate the url in redis" do
+      assert_equal @url, $redis.hget(Version.info_key(@version.full_name), :url)
+    end
+  end
+
   context "with a version" do
     setup do
       @version = Factory(:version)
@@ -160,6 +171,7 @@ class VersionTest < ActiveSupport::TestCase
       assert_equal @version.rubygem.name, info["name"]
       assert_equal @version.number, info["number"]
       assert_equal @version.platform, info["platform"]
+      assert_nil   $redis.hget(Version.info_key(@version.full_name), :url)
     end
 
     should "add version onto redis versions list" do

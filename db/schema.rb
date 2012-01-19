@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120118194729) do
+ActiveRecord::Schema.define(:version => 20120119063100) do
 
   create_table "announcements", :force => true do |t|
     t.text     "body"
@@ -134,6 +134,7 @@ ActiveRecord::Schema.define(:version => 20120118194729) do
     t.integer  "position"
     t.boolean  "latest"
     t.string   "full_name"
+    t.string   "url"
   end
 
   add_index "versions", ["built_at"], :name => "index_versions_on_built_at"

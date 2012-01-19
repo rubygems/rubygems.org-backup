@@ -70,6 +70,23 @@ class HostessTest < ActiveSupport::TestCase
       assert_equal "http://#{$rubygems_config[:cf_domain]}#{@file}", last_response.headers["Location"]
       assert_equal 302, last_response.status
     end
+
+  end
+
+  context "with a gem that has a url" do
+    setup do
+      @file = "/gems/test-0.0.1.gem"
+      @url = "http://whererever/blah.gem"
+      @rubygem = Factory(:rubygem, :name => "test")
+      @version = Factory(:version, :rubygem => @rubygem, :number => "0.0.1", :url => @url)
+    end
+
+    should "redirect to the gem's url" do
+      get @file
+
+      assert_equal @url, last_response.headers["Location"]
+      assert_equal 302, last_response.status
+    end
   end
 
   should "not be able to find bad gem" do
