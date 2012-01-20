@@ -99,6 +99,10 @@ class Hostess < Sinatra::Base
     redirect "/gems/#{params[:splat].join}.gem"
   end
 
+  get "/hash/*.gem" do
+    Version.gem_hash_for(full_name) || "0"
+  end
+
   def full_name
     @full_name ||= params[:splat].join.chomp('.gem')
   end

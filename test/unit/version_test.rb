@@ -136,6 +136,17 @@ class VersionTest < ActiveSupport::TestCase
     end
   end
 
+  context "with a version that has a gem hash" do
+    setup do
+      @hash = "aabbccddeeffgg"
+      @version = Factory(:version, :gem_hash => @hash)
+    end
+
+    should "populate the gem hash in redis" do
+      assert_equal @hash, $redis.hget(Version.info_key(@version.full_name), :gem_hash)
+    end
+  end
+
   context "with a version" do
     setup do
       @version = Factory(:version)
@@ -172,6 +183,7 @@ class VersionTest < ActiveSupport::TestCase
       assert_equal @version.number, info["number"]
       assert_equal @version.platform, info["platform"]
       assert_nil   $redis.hget(Version.info_key(@version.full_name), :url)
+      assert_nil   $redis.hget(Version.info_key(@version.full_name), :hash)
     end
 
     should "add version onto redis versions list" do

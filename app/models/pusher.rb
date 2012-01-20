@@ -12,6 +12,13 @@ class Pusher
     pull_spec && find && authorize && save
   end
 
+  def add_redirection(url, gem_hash)
+    @url = url
+    @gem_hash = gem_hash
+    @spec = Gem::Specification.from_yaml(@body.read)
+    find_rubygem && authorize && create_version && save_redirection
+  end
+
   def authorize
     rubygem.pushable? ||
     rubygem.owned_by?(user) ||
@@ -21,6 +28,16 @@ class Pusher
   def save
     if update
       @indexer.write_gem @body, @spec
+      after_write
+      notify("Successfully registered gem: #{version.to_title}", 200)
+    else
+      notify("There was a problem saving your gem: #{rubygem.all_errors(version)}", 403)
+    end
+  end
+
+  def save_redirection
+    if update
+      @indexer.write_spec @spec
       after_write
       notify("Successfully registered gem: #{version.to_title}", 200)
     else
@@ -56,6 +73,25 @@ class Pusher
     end
   end
 
+  def find_rubygem
+    @rubygem = Rubygem.find_or_initialize_by_name(spec.name)
+  end
+
+  def create_version
+    ver = spec.version.to_s
+    plat = spec.original_platform.to_s
+
+    if @rubygem.versions.find_by_number_and_platform(ver, plat)
+      notify("Repushing of gem versions is not allowed.\n" +
+             "Please use `gem yank` to remove bad gem releases.", 409)
+    else
+      @version = @rubygem.versions.new(:number => ver, :platform => plat,
+                                          :url => @url, :gem_hash => @gem_hash)
+      @version.rubygem = @rubygem
+      true
+    end
+  end
+
   private
 
   def after_write
@@ -74,8 +110,8 @@ class Pusher
     rubygem.update_attributes_from_gem_specification!(version, spec)
     rubygem.create_ownership(user) unless version.new_record?
     true
-  rescue ActiveRecord::RecordInvalid, ActiveRecord::Rollback
-    false
+  # rescue ActiveRecord::RecordInvalid, ActiveRecord::Rollback
+    # false
   end
 
   def self.server_path(*more)

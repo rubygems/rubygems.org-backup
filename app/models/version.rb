@@ -102,6 +102,10 @@ class Version < ActiveRecord::Base
     $redis.hget(info_key(full_name), :url)
   end
 
+  def self.gem_hash_for(full_name)
+    $redis.hget(info_key(full_name), :gem_hash)
+  end
+
   def self.info_key(full_name)
     "v:#{full_name}"
   end
@@ -251,6 +255,8 @@ class Version < ActiveRecord::Base
     if string_authors.blank? || string_authors.size != authors.size
       errors.add :authors, "must be an Array of Strings"
     end
+
+    true
   end
 
   def update_prerelease
@@ -268,18 +274,24 @@ class Version < ActiveRecord::Base
 
     Version.update_all({:full_name => full_name}, {:id => id})
 
+    vals = [
+             :name, rubygem.name,
+             :number, number,
+             :platform, platform
+           ]
+
     if u = self.url
-      $redis.hmset(Version.info_key(full_name),
-                   :name, rubygem.name,
-                   :number, number,
-                   :platform, platform,
-                   :url, u)
-    else
-      $redis.hmset(Version.info_key(full_name),
-                   :name, rubygem.name,
-                   :number, number,
-                   :platform, platform)
+      vals << :url
+      vals << u
     end
+
+    if h = self.gem_hash
+      vals << :gem_hash
+      vals << h
+    end
+
+
+    $redis.hmset(Version.info_key(full_name), *vals)
 
     push
   end

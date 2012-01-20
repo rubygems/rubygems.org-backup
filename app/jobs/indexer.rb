@@ -12,6 +12,10 @@ class Indexer
       :public => true
     )
 
+    write_spec spec
+  end
+
+  def write_spec(spec)
     self.class.indexer.abbreviate spec
     self.class.indexer.sanitize spec
 

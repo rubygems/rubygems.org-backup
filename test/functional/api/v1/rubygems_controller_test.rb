@@ -162,6 +162,34 @@ class Api::V1::RubygemsControllerTest < ActionController::TestCase
       end
     end
 
+    context "On POST to register a gem with redirection" do
+      setup do
+        @url = "http://whatever/blah.gem"
+        @hash = "aabbccddeeff"
+
+        @request.env["HTTP_GEM_URL"] = @url
+        @request.env["HTTP_GEM_HASH"] = @hash
+
+        @spec = gem_spec
+
+        @request.env["RAW_POST_DATA"] = @spec.to_yaml
+
+        post :create
+      end
+
+      should "register a new gem" do
+        assert_equal "Successfully registered gem: test (0.0.0)", @response.body
+        assert_equal 1, Rubygem.count
+        rg = Rubygem.last
+        assert_equal @user, rg.ownerships.first.user
+
+        ver = rg.versions.first
+
+        assert_equal @url, ver.url
+        assert_equal @hash, ver.gem_hash
+      end
+    end
+
     context "On POST to create for existing gem" do
       setup do
         rubygem = Factory(:rubygem, :name => "test")
@@ -177,6 +205,40 @@ class Api::V1::RubygemsControllerTest < ActionController::TestCase
         assert_equal 1, Rubygem.last.ownerships.count
         assert_equal 2, Rubygem.last.versions.count
         assert_equal "Successfully registered gem: test (1.0.0)", @response.body
+      end
+    end
+
+    context "On POST to register an existing gem with redirection" do
+      setup do
+        @url = "http://whatever/blah.gem"
+        @hash = "aabbccddeeff"
+
+        @request.env["HTTP_GEM_URL"] = @url
+        @request.env["HTTP_GEM_HASH"] = @hash
+
+        @spec = gem_spec :version => "1.0.0"
+
+        rubygem = Factory(:rubygem, :name => @spec.name)
+        Factory(:ownership, :rubygem => rubygem, :user => @user)
+        Factory(:version, :rubygem => rubygem, :number => "0.0.0", :updated_at => 1.year.ago, :created_at => 1.year.ago)
+
+        @request.env["RAW_POST_DATA"] = @spec.to_yaml
+
+        post :create
+      end
+
+      should "register a new version" do
+        assert_equal "Successfully registered gem: test (1.0.0)", @response.body
+        assert_equal 1, Rubygem.count
+        rg = Rubygem.last
+        assert_equal @user, rg.ownerships.first.user
+
+        assert_equal 2, rg.versions.size
+
+        ver = rg.versions.last
+
+        assert_equal @url, ver.url
+        assert_equal @hash, ver.gem_hash
       end
     end
 

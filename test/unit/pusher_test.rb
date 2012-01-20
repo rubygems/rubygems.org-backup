@@ -15,6 +15,29 @@ class PusherTest < ActiveSupport::TestCase
     end
   end
 
+  context "registering a new gem with a url" do
+    setup do
+      @user = Factory(:user)
+      @url = "http://whatever/blah.gem"
+      @spec = gem_spec
+      body = StringIO.new(@spec.to_yaml)
+
+      @pusher = Pusher.new(@user, body)
+      @hash = "aabbccddeeff"
+    end
+
+    should "create a Rubygem and Version with a url" do
+      @pusher.add_redirection @url, @hash
+
+      rg = Rubygem.find_by_name(@spec.name)
+      ver = rg.versions.first
+
+      assert_equal @spec.version.to_s, ver.number
+      assert_equal @hash, ver.gem_hash
+      assert_equal @url, ver.url
+    end
+  end
+
   context "creating a new gemcutter" do
     setup do
       @user = Factory(:user)

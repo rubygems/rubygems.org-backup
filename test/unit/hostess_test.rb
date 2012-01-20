@@ -89,6 +89,37 @@ class HostessTest < ActiveSupport::TestCase
     end
   end
 
+  context "with a gem that has a hash" do
+    setup do
+      @file = "/hash/test-0.0.1.gem"
+      @hash = "aabbccddeeff"
+      @rubygem = Factory(:rubygem, :name => "test")
+      @version = Factory(:version, :rubygem => @rubygem, :number => "0.0.1", :gem_hash => @hash)
+    end
+
+    should "return the hash stored" do
+      get @file
+
+      assert_equal @hash, last_response.body
+      assert_equal 200, last_response.status
+    end
+  end
+
+  context "with a gem that doesn't have a hash" do
+    setup do
+      @file = "/hash/test-0.0.1.gem"
+      @rubygem = Factory(:rubygem, :name => "test")
+      @version = Factory(:version, :rubygem => @rubygem, :number => "0.0.1")
+    end
+
+    should "return the hash stored" do
+      get @file
+
+      assert_equal "0", last_response.body
+      assert_equal 200, last_response.status
+    end
+  end
+
   should "not be able to find bad gem" do
     get "/gems/rails-3.0.0.gem"
     assert_equal 404, last_response.status

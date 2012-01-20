@@ -24,7 +24,13 @@ class Api::V1::RubygemsController < Api::BaseController
 
   def create
     gemcutter = Pusher.new(current_user, request.body, request.host_with_port)
-    gemcutter.process
+
+    if url = request.headers['Gem-URL']
+      gemcutter.add_redirection url, request.headers['Gem-Hash']
+    else
+      gemcutter.process
+    end
+
     render :text => gemcutter.message, :status => gemcutter.code
   end
 
