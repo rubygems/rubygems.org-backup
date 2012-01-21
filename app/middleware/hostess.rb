@@ -85,6 +85,10 @@ class Hostess < Sinatra::Base
         Download.incr(name, full_name)
 
         if url = Version.url_for(full_name)
+          if h = Version.gem_hash_for(full_name)
+            headers "Gem-Hash" => h
+          end
+
           redirect url
         else
           serve_via_cf

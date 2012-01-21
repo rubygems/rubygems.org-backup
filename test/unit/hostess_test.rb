@@ -77,8 +77,10 @@ class HostessTest < ActiveSupport::TestCase
     setup do
       @file = "/gems/test-0.0.1.gem"
       @url = "http://whererever/blah.gem"
+      @hash = "aabbccddeeff"
       @rubygem = Factory(:rubygem, :name => "test")
-      @version = Factory(:version, :rubygem => @rubygem, :number => "0.0.1", :url => @url)
+      @version = Factory(:version, :rubygem => @rubygem, :number => "0.0.1",
+                         :url => @url, :gem_hash => @hash)
     end
 
     should "redirect to the gem's url" do
@@ -86,6 +88,12 @@ class HostessTest < ActiveSupport::TestCase
 
       assert_equal @url, last_response.headers["Location"]
       assert_equal 302, last_response.status
+    end
+
+    should "include the gem hash in the headers" do
+      get @file
+
+      assert_equal @hash, last_response.headers["Gem-Hash"]
     end
   end
 
