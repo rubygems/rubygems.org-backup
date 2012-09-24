@@ -1,6 +1,6 @@
-role :app, "b1.rubygems.org"
-role :web, "b1.rubygems.org"
-role :db,  "b1.rubygems.org", :primary => true
+role :app, "a1.cloud.rubygems.org"
+role :web, "a1.cloud.rubygems.org"
+role :db,  "db1.cloud.rubygems.org", :primary => true
 
-set :branch,    "production"
-set :deploy_to, "/var/www/rubycentral/gemcutter.org/"
+set :branch,    "cloud"
+set :deploy_to, "/u/apps/rubygems.org/"

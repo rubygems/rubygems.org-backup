@@ -1,6 +1,6 @@
 namespace :deploy do
   desc "Move in database.yml for this environment"
-  task :move_in_database_yml, :roles => :app do
+  task :move_in_database_yml, :roles => [:app, :db] do
     run "cp #{deploy_to}/shared/config/database.yml #{current_path}/config/"
   end
 
