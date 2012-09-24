@@ -1,5 +1,5 @@
 log_file = "#{RELEASE_PATH}/shared/log/bluepill.log"
-base_dir = "/u/app/rubygems.org/shared/bluepill"
+base_dir = "/u/apps/rubygems.org/shared/bluepill"
 
 Bluepill.application("gemcutter", :log_file => log_file, 
                                   :base_dir => base_dir) do |app|
