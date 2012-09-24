@@ -1,7 +1,8 @@
 log_file = "#{RELEASE_PATH}/shared/log/bluepill.log"
-base_dir = "/tmp/bluepill"
+base_dir = "/u/app/rubygems.org/shared/bluepill"
 
-Bluepill.application("gemcutter", :log_file => log_file, :base_dir => base_dir) do |app|
+Bluepill.application("gemcutter", :log_file => log_file, 
+                                  :base_dir => base_dir) do |app|
   app.process("delayed_job") do |process|
     process.working_dir = "#{RELEASE_PATH}/current"
 
@@ -16,6 +17,5 @@ Bluepill.application("gemcutter", :log_file => log_file, :base_dir => base_dir) 
     process.pid_file = "#{RELEASE_PATH}/shared/pids/delayed_job.pid"
 
     process.uid = process.gid = "rubycentral"
-    process.supplementary_groups = ['rvm']
   end
 end
