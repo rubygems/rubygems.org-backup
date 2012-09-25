@@ -19,7 +19,7 @@ class Rubygem < ActiveRecord::Base
   end
 
   def self.with_one_version
-    select('rubygems.*').
+    where("rubygems.id IN (SELECT rubygem_id FROM versions where versions.indexed IS true)").
     joins(:versions).
     group(column_names.map { |name| "rubygems.#{name}" }.join(', ')).
     having('COUNT(versions.id) = 1')

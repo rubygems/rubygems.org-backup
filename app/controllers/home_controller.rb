@@ -1,9 +1,9 @@
 class HomeController < ApplicationController
   def index
-    @rubygems_count  = Rubygem.total_count
+    @rubygems_count  = SiteStats.active_gems
     @downloads_count = Download.count
-    @latest          = Rubygem.latest
+    @latest          = SiteStats.latest_gems
     @downloaded      = Download.most_downloaded_today
-    @updated         = Version.just_updated
+    @updated         = SiteStats.latest_versions
   end
 end

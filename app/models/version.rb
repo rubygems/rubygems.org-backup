@@ -7,6 +7,8 @@ class Version < ActiveRecord::Base
   after_create     :full_nameify!
   after_save       :reorder_versions
 
+  after_save       :update_site_stats
+
   validates :number,   :format => {:with => /\A#{Gem::Version::VERSION_PATTERN}\z/}
   validates :platform, :format => {:with => Rubygem::NAME_PATTERN}
 
@@ -112,6 +114,10 @@ class Version < ActiveRecord::Base
 
   def reorder_versions
     rubygem.reorder_versions
+  end
+
+  def update_site_stats
+    SiteStats.rewrite!
   end
 
   def yank!

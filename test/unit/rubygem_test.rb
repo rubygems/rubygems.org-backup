@@ -612,4 +612,72 @@ class RubygemTest < ActiveSupport::TestCase
       end
     end
   end
+
+  context "stats" do
+    should "rewrite the active_gems stat when activate" do
+      assert_equal 0, SiteStats.active_gems
+      rubygem = create(:rubygem)
+      version = create(:version, :rubygem => rubygem)
+
+      assert_equal 1, SiteStats.active_gems
+    end
+
+    should "rewrite the active_gem stat when yanked" do
+      rubygem = create(:rubygem)
+      version = create(:version, :rubygem => rubygem)
+
+      assert_equal 1, SiteStats.active_gems
+      version.yank!
+
+      assert_equal 0, SiteStats.active_gems
+    end
+
+    should "rewrite the latest_gem stat when activated" do
+      rubygem = create(:rubygem)
+      version = create(:version, :rubygem => rubygem)
+
+      ary = SiteStats.latest_gems
+
+      assert_equal 1, ary.size
+      assert_equal rubygem.id, ary[0].id
+    end
+
+    should "rewrite the latest_gem stat when yanked" do
+      rubygem = create(:rubygem)
+      version = create(:version, :rubygem => rubygem)
+
+      ary = SiteStats.latest_gems
+      assert_equal 1, ary.size
+
+      version.yank!
+
+      assert_equal 0, SiteStats.latest_gems.size
+    end
+
+    should "rewrite latest_versions stat when activated" do
+      rubygem = create(:rubygem)
+      v1 = create(:version, :rubygem => rubygem)
+      v2 = create(:version, :rubygem => rubygem)
+
+      ary = SiteStats.latest_versions
+
+      assert_equal 2, ary.size
+      assert_equal v2.id, ary[0].id
+      assert_equal v1.id, ary[1].id
+    end
+
+    should "rewrite latest_versions stat when yanked" do
+      rubygem = create(:rubygem)
+      v1 = create(:version, :rubygem => rubygem)
+      v2 = create(:version, :rubygem => rubygem)
+
+      ary = SiteStats.latest_versions
+      assert_equal 2, ary.size
+
+      v1.yank!
+
+      assert_equal 1, SiteStats.latest_versions.size
+    end
+
+  end
 end
