@@ -29,7 +29,7 @@ staging:
   asset_cacher: false
 
 live: &LIVE
-  host: rubygems.org
+  host: cloud.rubygems.org
   local_storage: false
   redirector: true
   s3_bucket: production.s3.rubygems.org

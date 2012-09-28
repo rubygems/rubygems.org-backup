@@ -8,7 +8,7 @@ namespace :deploy do
   end
 
   task :stop, :roles => :app, :except => { :no_release => true } do 
-    run "#{try_sudo} kill `cat #{unicorn_pid}`"
+    run "(test -f #{unicorn_pid} && #{try_sudo} kill `cat #{unicorn_pid}`) || true"
   end
 
   task :graceful_stop, :roles => :app, :except => { :no_release => true } do
